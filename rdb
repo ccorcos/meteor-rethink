@@ -1,0 +1,47 @@
+#!/usr/bin/env node
+
+var child_process = require('child_process')
+var fs = require('fs')
+
+var instructions =  "Install RethinkDB with Homebrew\n\n" +
+                    "brew install rethinkdb"
+
+function help() {
+  console.log(instructions);
+}
+
+function getAppDir() {
+  var dir = process.cwd()
+  var path = dir.split('/')
+  while (path.length > 0) {
+    dir = path.join('/')
+    if (fs.existsSync(dir + '/.meteor/'))
+      return dir + '/'
+    else
+      path.splice(path.length-1,1)
+  }
+
+  throw new Error("Couldn't find a Meteor app on your path.") 
+}
+
+function exec(name, args) {
+  var child = child_process.spawn(name, args)
+  child.stdout.on('data', function (data) {   process.stdout.write(data.toString());  });
+  child.stderr.on('data', function (data) {   process.stdout.write(data.toString());  });
+}
+
+function rethinkStart() {
+  exec('rethinkdb', ['-d', getAppDir() + '.meteor/local/rethinkdb/'])
+}
+
+
+var args = process.argv
+args.splice(0,2)
+
+if (args[0] == '--help') {
+  help()
+}
+
+if (args[0] == 'start') {
+  rethinkStart()
+}

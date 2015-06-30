@@ -1,0 +1,12 @@
+<body>
+  {{>main}}
+</body>
+
+<template name="main">
+  The most active author is {{author.name}} for the TV show {{author.tv_show}}.
+  {{#each author.posts}}
+    <hr>
+    <h4>{{title}}</h4>
+    <p>{{content}}</p>
+  {{/each}}
+</template>
