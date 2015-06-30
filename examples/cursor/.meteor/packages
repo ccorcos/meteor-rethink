@@ -6,5 +6,5 @@
 
 meteor-platform
 coffeescript
-ccorcos:rethinkdb
 ramda:ramda
+ccorcos:rethink

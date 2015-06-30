@@ -1,8 +1,8 @@
 Package.describe({
-  name: 'ccorcos:rethinkdb',
+  name: 'ccorcos:rethink',
   summary: 'RethinkDB API for Meteor',
   version: '0.0.1',
-  git: 'https://github.com/ccorcos/meteor-rethinkdb'
+  git: 'https://github.com/ccorcos/meteor-rethink'
 });
 
 Npm.depends({

@@ -1,146 +1,62 @@
 # Meteor RethinkDB
 
-
-brew install rethinkdb
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-This package allows you to use the open-source graph database Neo4j with your Meteor project.
+This package allows you to use the RethinkDB in your Meteor project.
 
 ## Installation and Setup
 
-You will have to install Neo4j on your machine. If you're on a Mac using Homebrew:
+You will have to install RethinkDB on your machine. If you're on a Mac using Homebrew:
 
-    brew install neo4j
+    brew install rethinkdb
 
 Then add this package to your Meteor project:
 
-    meteor add ccorcos:neo4j
+    meteor add ccorcos:rethink
 
-You can get up and running quickly by starting Neo4j, and then starting Meteor:
+You can get up and running quickly by starting Rethink, and then starting Meteor:
 
-    neo4j start
+    rethinkdb start
     meteor
-
-Neo4j has a nice browser interface so be sure to check it out! 
-The default URL is http://localhost:7474/
-
-Then, when you're done, make sure you stop Neo4j as well:
-
-    neo4j stop
 
 ### CLI
 
 I'm working on a command-line tool for this package. 
 Hopefully at some point, Meteor will allow some hooks into the build system.
-The main benefit of this tool is that it creates a Neo4j database in `.meteor/local/neo4j/`
+The main benefit of this tool is that it creates a Rethink database in `.meteor/local/rethinkdb/`
 so that you can separate your projects nicely. First, download the script and make it
 executable.
 
-    curl -O https://raw.githubusercontent.com/ccorcos/meteor-neo4j/master/m4j
-    chmod +x m4j
+    curl -O https://raw.githubusercontent.com/ccorcos/meteor-rethink/master/rdb
+    chmod +x rdb
 
 Make sure this script is somewhere on your path. Then from inside your Meteor project, 
-you can start Neo4j and it will create a database for this project if it doesn't already exist.
+you can start Rethink and it will create a database for this project if it doesn't already exist.
 
-    m4j start
+    rdb start
 
-Then feel free to start up Meteor. And when you're done, you can stop using:
-
-    m4j stop
-
-Finally, when you use `meteor reset`, it will also clear the Neo4j database because `meteor reset`
-clears the project's `.meteor/local/` directory. 
-Just **make sure you stop Neo4j before resetting meteor**.
-
+Finally, when you use `meteor reset`, it will also clear the Rethink database because `meteor reset` clears the project's `.meteor/local/` directory. 
 
 ## API
 
 On the server, start the database connection:
 
-    Neo4j = new Neo4jDB()
+    Rethink = new RethinkDB()
 
-This defaults to running on `http://localhost:7474/`. 
-If you want to connect to a Neo4j instance running elsewhere, 
-you can pass a url string with authentication:
+This defaults to running on `http://localhost:28015/`. 
+If you want to connect to a Rethink instance running elsewhere, 
+you can pass an object specifying the `host`, `port`, `db`, and `authKey`.
 
-    Neo4j = new Neo4jDB("http://username:password@project.graphenedb.com:24789")
+You can also set environments variable for `RETHINK_HOST`, `RETHINK_URL`, and `RETHINK_AUTH_KEY`.
 
-You can also set the an environment variable for `NEO4J_URL` or `GRAPHENEDB_URL`.
+Rethink is built upon chaining queries. To wrap these queries into fibers, we provide `Rethink.run`. `Rethink.toArray` will turn a cursor into an array.
 
-Neo4j uses a querying language called [Cypher](http://neo4j.com/docs/stable/cypher-query-lang.html).
-You can run a query like this:
+    cursor = Rethink.run(r.table('authors').orderBy({index: r.desc('posts')}).limit(1))
+    results = Rethink.toArray(cursor)
 
-    result = Neo4j.query("MATCH (a) RETURN a")
+You can accomplish both of these by using `Rethink.fetch`.
 
-I like to write multi-line queries in Coffeescript, which are generally easier to read:
+# To Do
 
-    result = Neo4j.query """
-                         MATCH (n)
-                         RETURN n
-                         """
+Changefeeds have a couple issues. 
 
-Neo4j has an interesting way of returning results and I've come up with a reasonable
-way of interpreting them.
-
-- If there are no items to be returned, `query` returns undefined.
-- If you query for an array of values, you'll get just that. e.g `MATCH (n) RETURN n`
-- If you query for a property, you'll get an array as well. e.g.  `MATCH (n) RETURN n.name`
-- If you query multiple properties, you'll get a 2D array. e.g. `MATCH (n) RETURN n.name, n.email`
-
-Neo4j queries don't play will with `JSON.stringify` for a variety of reasons.
-For that reason, use `Neo4j.stringify`. e.g. 
-
-    Neo4j.query "CREATE (:PERSON #{Neo4j.stringify(user)})"
-
-You can clear the database at the commandline:
-
-    neo4j stop
-    meteor reset
-
-Or you can clear it in Node:
-
-    Neo4j.reset()
-
-You can also check to see if the database is empty using:
-
-    Neo4j.isEmpty()
-
-## Deploy
-
-There are several hosting solution for Neo4j. 
-[GrapheneDB](http://www.graphenedb.com/) is popular.
-
-## Quirks
-
-- Sometimes Neo4j hangs and won't stop. Try `ps aux | grep neo4j` and then `kill -9 <pid>`.
-- Neo4j does not accept nested property lists!
+1) They don't consistently provide the initial documents.
+2) They don't support ordered queries
