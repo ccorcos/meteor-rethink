@@ -1,6 +1,6 @@
 # Meteor RethinkDB
 
-This package allows you to use the RethinkDB in your Meteor project.
+This package allows you to use the RethinkDB in your Meteor project. You can use this package by itself or in tandem with [`ccorcos:any-db`](https://github.com/ccorcos/meteor-any-db).
 
 ## Installation and Setup
 
